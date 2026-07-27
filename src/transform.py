@@ -21,8 +21,7 @@ def transform_silver() -> pd.DataFrame:
     """
     engine = get_engine()
 
-    # Lê apenas o snapshot mais recente da Bronze (não o histórico acumulado inteiro),
-    # já que cada execução do pipeline transforma só o dado que acabou de chegar
+    # Lê apenas o snapshot mais recente da Bronze (não o histórico acumulado inteiro)
     df_bronze = pd.read_sql(
         "SELECT * FROM bronze_cripto WHERE data_coleta = (SELECT MAX(data_coleta) FROM bronze_cripto)",
         engine
@@ -50,7 +49,7 @@ def transform_silver() -> pd.DataFrame:
         (df_silver["high_24h"] - df_silver["low_24h"]) / df_silver["low_24h"]
     ) * 100
 
-    # Onde o preço atual está dentro da faixa do dia — 0 = mínima, 1 = máxima
+    # Onde o preço atual está dentro da faixa do dia (0 = mínima, 1 = máxima)
     df_silver["posicao_no_range_24h"] = (
         (df_silver["current_price"] - df_silver["low_24h"]) /
         (df_silver["high_24h"] - df_silver["low_24h"])

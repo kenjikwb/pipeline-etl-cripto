@@ -22,7 +22,7 @@ from load import load_bronze, load_silver, load_gold
 def task_extract(**context):
     """Busca o snapshot da API e passa o resultado para a próxima task via XCom."""
     df_cripto = extract_cripto()
-    # XCom não guarda DataFrames diretamente, então convertemos para um formato serializável
+    # XCom não guarda DataFrames diretamente, então converti para um formato serializável
     context["ti"].xcom_push(key="df_cripto", value=df_cripto.to_json())
 
 
@@ -58,7 +58,7 @@ def task_load_gold(**context):
 with DAG(
     dag_id="pipeline_cripto",
     description="ETL de criptomoedas: CoinGecko -> Bronze -> Silver -> Gold",
-    schedule="@hourly",          # roda de hora em hora; ajuste conforme quiser
+    schedule="@hourly",          # roda de hora em hora
     start_date=datetime(2026, 1, 1),
     catchup=False,               # não roda execuções "atrasadas" retroativas
     tags=["cripto", "etl", "projeto-final"],

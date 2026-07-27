@@ -1,9 +1,7 @@
 """
 Executa o pipeline completo, na ordem: Extract -> Bronze -> Silver -> Gold.
-Serve para testar tudo localmente, do mesmo jeito que você fazia célula por
-célula no notebook. Mais adiante, a DAG do Airflow vai chamar essas mesmas
-funções (extract_cripto, load_bronze, transform_silver, load_silver, load_gold)
-como tasks separadas, em vez de rodar tudo num script só.
+A DAG do Airflow vai chamar essas mesmas funções (extract_cripto, load_bronze, 
+transform_silver, load_silver, load_gold) como tasks separadas, em vez de rodar tudo num script só.
 """
 
 from extract import extract_cripto

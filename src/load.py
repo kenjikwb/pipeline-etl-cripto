@@ -11,7 +11,7 @@ from config import get_engine
 def load_bronze(df_cripto: pd.DataFrame):
     """
     Grava o dado bruto na tabela bronze_cripto.
-    Usa append (nunca replace) para acumular um snapshot novo
+    Usa append para acumular um snapshot novo
     a cada execução, sem apagar o histórico anterior.
     """
     engine = get_engine()
@@ -22,7 +22,7 @@ def load_bronze(df_cripto: pd.DataFrame):
 def load_silver(df_silver: pd.DataFrame):
     """
     Grava o dado tratado na tabela silver_cripto.
-    Também usa append, pelo mesmo motivo da Bronze — manter histórico.
+    Também usa append, pelo mesmo motivo da Bronze, manter histórico.
     """
     engine = get_engine()
     df_silver.to_sql("silver_cripto", engine, if_exists="append", index=False)
@@ -61,7 +61,7 @@ def _build_gold_correlacao_bitcoin(df_silver: pd.DataFrame) -> pd.DataFrame:
     """
     Diferença de variação de cada moeda em relação ao Bitcoin no mesmo snapshot (Análise 4).
     Nota: correlação estatística real (Pearson) só faz sentido depois de acumular
-    vários snapshots ao longo do tempo — com um único snapshot, essa é a métrica possível.
+    vários snapshots ao longo do tempo.
     """
     preco_bitcoin_var = df_silver.loc[df_silver["id"] == "bitcoin", "price_change_percentage_24h"].values[0]
 
@@ -76,8 +76,6 @@ def _build_gold_correlacao_bitcoin(df_silver: pd.DataFrame) -> pd.DataFrame:
 def load_gold(df_silver: pd.DataFrame):
     """
     Constrói as 4 tabelas Gold a partir do Silver e grava todas no banco.
-    gold_concentracao_mercado usa append (queremos ver esse índice mudar com o tempo);
-    as demais usam replace (são rankings do snapshot mais recente).
     """
     engine = get_engine()
 

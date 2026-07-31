@@ -87,6 +87,6 @@ def load_gold(df_silver: pd.DataFrame):
     gold_volatilidade.to_sql("gold_volatilidade", engine, if_exists="append", index=False)
     gold_distancia_ath.to_sql("gold_distancia_ath", engine, if_exists="append", index=False)
     gold_concentracao.to_sql("gold_concentracao_mercado", engine, if_exists="append", index=False)
-    gold_correlacao_bitcoin.to_sql("gold_correlacao_bitcoin", engine, if_exists="replace", index=False)
+    gold_correlacao_bitcoin.to_sql("gold_correlacao_bitcoin", engine, if_exists="append", index=False)
 
     print("Carga concluída nas 4 tabelas Gold")

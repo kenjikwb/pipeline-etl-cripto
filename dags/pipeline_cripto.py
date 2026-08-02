@@ -13,10 +13,12 @@ from io import StringIO
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.operators.dummy import DummyOperator
 
 from extract import extract_cripto
 from transform import transform_silver
 from load import load_bronze, load_silver, load_gold
+
 
 
 def task_extract(**context):
@@ -69,10 +71,12 @@ with DAG(
     tags=["cripto", "etl", "projeto-final"],
 ) as dag:
 
+    start = DummyOperator(task_id="start")
     extract = PythonOperator(task_id="extract", python_callable=task_extract)
     load_bronze_task = PythonOperator(task_id="load_bronze", python_callable=task_load_bronze)
     transform = PythonOperator(task_id="transform", python_callable=task_transform)
     load_silver_task = PythonOperator(task_id="load_silver", python_callable=task_load_silver)
     load_gold_task = PythonOperator(task_id="load_gold", python_callable=task_load_gold)
+    end = DummyOperator(task_id="end")
 
-    extract >> load_bronze_task >> transform >> [load_silver_task, load_gold_task]
+    start >> extract >> load_bronze_task >> transform >> load_silver_task >> load_gold_task >> end

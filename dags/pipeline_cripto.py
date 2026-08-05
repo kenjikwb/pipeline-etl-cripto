@@ -1,6 +1,6 @@
 """
 DAG do pipeline de ETL de criptomoedas.
-Orquestra, na ordem, as mesmas funções que já validamos em src/:
+Orquestra, na ordem, as mesmas funções já validadas em src/:
 extract -> load_bronze -> transform -> load_silver -> load_gold.
 
 Graças ao PYTHONPATH configurado no docker-compose.yaml (/opt/airflow/src),

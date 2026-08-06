@@ -63,8 +63,8 @@ def transform_silver() -> pd.DataFrame:
     # -100 fiquem fora de todas as faixas e virem NaN
     df_silver["categoria_ath"] = pd.cut(
         df_silver["ath_change_percentage"],
-        bins=[-100.01, -75, -50, -25, 0],
-        labels=["Muito longe do topo", "Longe do topo", "Perto do topo", "Próximo do topo"]
+        bins=[-100.01, -70, -40, -10, 0],
+        labels=["Queda extrema", "Queda severa", "Queda significativa", "Próximo do topo"]
     )
 
     return df_silver

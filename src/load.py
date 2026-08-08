@@ -43,34 +43,33 @@ def _build_gold_distancia_ath(df_silver: pd.DataFrame) -> pd.DataFrame:
         .reset_index(drop=True)
 
 
-def _build_gold_concentracao(df_silver: pd.DataFrame) -> pd.DataFrame:
-    """Percentual do market cap total concentrado nas top 10 moedas (Análise 3)."""
-    market_cap_total = df_silver["market_cap"].sum()
-    top10_market_cap = df_silver.sort_values("market_cap", ascending=False).head(10)["market_cap"].sum()
-    concentracao_pct = (top10_market_cap / market_cap_total) * 100
+def _build_gold_sentimento_mercado(df_silver: pd.DataFrame) -> pd.DataFrame:
+    """Sentimento do mercado — quantas moedas subiram vs caíram (Análise 5)."""
+    total = len(df_silver)
+    subindo = len(df_silver[df_silver["price_change_percentage_24h"] > 0])
+    caindo = len(df_silver[df_silver["price_change_percentage_24h"] < 0])
+    neutro = total - subindo - caindo
 
     return pd.DataFrame({
         "data_coleta": [df_silver["data_coleta"].iloc[0]],
-        "market_cap_total_250": [market_cap_total],
-        "market_cap_top10": [top10_market_cap],
-        "concentracao_top10_pct": [concentracao_pct]
+        "total_moedas": [total],
+        "subindo": [subindo],
+        "caindo": [caindo],
+        "neutro": [neutro],
+        "pct_subindo": [round((subindo / total) * 100, 2)],
+        "pct_caindo": [round((caindo / total) * 100, 2)]
     })
 
 
-def _build_gold_correlacao_bitcoin(df_silver: pd.DataFrame) -> pd.DataFrame:
-    """
-    Diferença de variação de cada moeda em relação ao Bitcoin no mesmo snapshot (Análise 4).
-    Nota: correlação estatística real (Pearson) só faz sentido depois de acumular
-    vários snapshots ao longo do tempo.
-    """
-    preco_bitcoin_var = df_silver.loc[df_silver["id"] == "bitcoin", "price_change_percentage_24h"].values[0]
+def _build_gold_performance_24h(df_silver: pd.DataFrame) -> pd.DataFrame:
+    """Top 10 maiores altas e top 10 maiores quedas em 24h (Análise 6)."""
+    df = df_silver[["id", "name", "data_coleta", "price_change_percentage_24h", "market_cap"]].copy()
+    df = df.dropna(subset=["price_change_percentage_24h"])
 
-    df_silver = df_silver.copy()
-    df_silver["diferenca_variacao_vs_bitcoin"] = df_silver["price_change_percentage_24h"] - preco_bitcoin_var
+    top_altas = df.nlargest(10, "price_change_percentage_24h").assign(tipo="Alta")
+    top_quedas = df.nsmallest(10, "price_change_percentage_24h").assign(tipo="Queda")
 
-    return df_silver[["id", "name", "data_coleta", "price_change_percentage_24h", "diferenca_variacao_vs_bitcoin"]] \
-        .sort_values("diferenca_variacao_vs_bitcoin", key=abs) \
-        .reset_index(drop=True)
+    return pd.concat([top_altas, top_quedas]).reset_index(drop=True)
 
 
 def load_gold(df_silver: pd.DataFrame):
@@ -81,12 +80,12 @@ def load_gold(df_silver: pd.DataFrame):
 
     gold_volatilidade = _build_gold_volatilidade(df_silver)
     gold_distancia_ath = _build_gold_distancia_ath(df_silver)
-    gold_concentracao = _build_gold_concentracao(df_silver)
-    gold_correlacao_bitcoin = _build_gold_correlacao_bitcoin(df_silver)
+    gold_sentimento = _build_gold_sentimento_mercado(df_silver)
+    gold_performance = _build_gold_performance_24h(df_silver)
 
     gold_volatilidade.to_sql("gold_volatilidade", engine, if_exists="append", index=False)
     gold_distancia_ath.to_sql("gold_distancia_ath", engine, if_exists="append", index=False)
-    gold_concentracao.to_sql("gold_concentracao_mercado", engine, if_exists="append", index=False)
-    gold_correlacao_bitcoin.to_sql("gold_correlacao_bitcoin", engine, if_exists="append", index=False)
+    gold_sentimento.to_sql("gold_sentimento_mercado", engine, if_exists="append", index=False)
+    gold_performance.to_sql("gold_performance_24h", engine, if_exists="append", index=False)
 
     print("Carga concluída nas 4 tabelas Gold")

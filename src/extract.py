@@ -26,6 +26,7 @@ def extract_cripto() -> pd.DataFrame:
     """
     parametros = {
         "vs_currency": "usd",
+        "category": "layer-1", 
         "order": "market_cap_desc",
         "per_page": 250,
         "page": 1,

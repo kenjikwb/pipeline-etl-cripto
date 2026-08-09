@@ -5,6 +5,7 @@ a partir do DataFrame já tratado pela Silver.
 """
 
 import pandas as pd
+from sqlalchemy import text
 from config import get_engine
 
 
@@ -77,6 +78,17 @@ def load_gold(df_silver: pd.DataFrame):
     Constrói as 4 tabelas Gold a partir do Silver e grava todas no banco.
     """
     engine = get_engine()
+
+    data_coleta = df_silver["data_coleta"].iloc[0]
+
+    # Evita duplicata por retry do Airflow
+    with engine.begin() as conn:
+        for tabela in ["gold_volatilidade", "gold_distancia_ath", 
+                       "gold_sentimento_mercado", "gold_performance_24h"]:
+            conn.execute(
+                text(f"DELETE FROM {tabela} WHERE data_coleta = :dt"),
+                {"dt": data_coleta}
+            )
 
     gold_volatilidade = _build_gold_volatilidade(df_silver)
     gold_distancia_ath = _build_gold_distancia_ath(df_silver)

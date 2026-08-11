@@ -65,7 +65,7 @@ def task_load_gold(**context):
 with DAG(
     dag_id="pipeline_cripto",
     description="ETL de criptomoedas: CoinGecko -> Bronze -> Silver -> Gold",
-    schedule="@hourly",
+    schedule="0 * * * *",
     start_date=datetime(2026, 1, 1),
     catchup=False,
     max_active_runs=1,

@@ -8,9 +8,9 @@ Pipeline de dados end-to-end que coleta, transforma e disponibiliza análises de
 
 ## Sobre o Projeto
 
-Este projeto foi desenvolvido como projeto final do curso de Cientista de Dados da [Harve](https://harve.com.br) e tem como objetivo demonstrar a construção de um pipeline ETL completo com boas práticas de engenharia de dados.
+Pipeline de dados end-to-end construído para demonstrar boas práticas de engenharia de dados, desde a coleta via API até a visualização em dashboard, com orquestração automatizada e arquitetura Medallion.
 
-A fonte de dados é a API pública do CoinGecko, filtrando as 250 principais blockchains Layer 1 por market cap. Os dados são coletados a cada hora e armazenados em camadas progressivas (Bronze → Silver → Gold), seguindo a arquitetura Medallion. O resultado final é um dashboard no Metabase com 5 análises de mercado atualizadas automaticamente.
+A fonte de dados é a API pública do CoinGecko, filtrando as 250 principais criptomoedas por market cap. Os dados são coletados a cada hora e armazenados em camadas progressivas (Bronze → Silver → Gold), seguindo a arquitetura Medallion. O resultado final é um dashboard no Metabase com 5 análises de mercado atualizadas automaticamente.
 
 ---
 
@@ -32,7 +32,7 @@ A fonte de dados é a API pública do CoinGecko, filtrando as 250 principais blo
 
 O pipeline segue o padrão Medallion de três camadas, garantindo separação clara entre dado bruto, dado tratado e dado analítico.
 
-### 🥉 Camada Bronze — `bronze_cripto`
+### 🥉 Camada Bronze - `bronze_cripto`
 
 **Objetivo:** preservar o dado exatamente como veio da API, sem nenhuma transformação.
 
@@ -50,15 +50,15 @@ O pipeline segue o padrão Medallion de três camadas, garantindo separação cl
 | price_change_percentage_24h | float | Variação percentual em 24h |
 | ath | float | All-time high (maior preço histórico) |
 | ath_change_percentage | float | Distância percentual do ATH |
-| data_coleta | timestamp | Momento da coleta — chave do histórico |
+| data_coleta | timestamp | Momento da coleta - chave do histórico |
 
-**Modo de carga:** `append` — cada execução adiciona um novo snapshot sem apagar o histórico anterior.
+**Modo de carga:** `append` - cada execução adiciona um novo snapshot sem apagar o histórico anterior.
 
 **Por que preservar o dado bruto?** Qualquer erro de transformação pode ser corrigido reprocessando a partir da Bronze, sem precisar buscar os dados na API novamente.
 
 ---
 
-### 🥈 Camada Silver — `silver_cripto`
+### 🥈 Camada Silver - `silver_cripto`
 
 **Objetivo:** dado limpo, tipado corretamente e com métricas derivadas prontas para análise.
 
@@ -66,7 +66,7 @@ Herda todos os campos da Bronze e adiciona:
 
 | Campo | Tipo | Descrição |
 |---|---|---|
-| amplitude_pct_24h | float | `(high_24h - low_24h) / low_24h * 100` — volatilidade do dia |
+| amplitude_pct_24h | float | `(high_24h - low_24h) / low_24h * 100` - volatilidade do dia |
 | posicao_no_range_24h | float | Onde o preço atual está entre mínima e máxima (0 = mínima, 1 = máxima) |
 | volume_milhoes | float | Volume em milhões (legibilidade) |
 | categoria_ath | text | Classificação da distância do ATH em 4 faixas |
@@ -86,11 +86,11 @@ Herda todos os campos da Bronze e adiciona:
 - Tipagem explícita de todas as colunas numéricas
 - Padronização de texto (strip + lowercase)
 
-**Modo de carga:** `append` — acumula histórico igual à Bronze.
+**Modo de carga:** `append` - acumula histórico igual à Bronze.
 
 ---
 
-### 🥇 Camada Gold — 4 tabelas analíticas
+### 🥇 Camada Gold - 4 tabelas analíticas
 
 **Objetivo:** dados agregados e prontos para consumo direto pelo Metabase, sem nenhuma transformação adicional na visualização.
 
@@ -124,7 +124,7 @@ Herda todos os campos da Bronze e adiciona:
 | ath_change_percentage | float | Distância percentual do ATH (sempre negativo) |
 | categoria_ath | text | Classificação em 4 faixas |
 
-**Resultado no dashboard:** gráfico de barras com distribuição das 250 Layer 1s por categoria de distância do ATH.
+**Resultado no dashboard:** gráfico de barras com distribuição das 250 criptomoedas por categoria de distância do ATH (all time high).
 
 ---
 
@@ -163,19 +163,10 @@ Herda todos os campos da Bronze e adiciona:
 
 ---
 
-## Por que Layer 1?
-
-A API do CoinGecko retorna qualquer ativo com market cap relevante — incluindo stablecoins (USDT, USDC), fundos tokenizados de títulos do tesouro americano e tokens wrapped. Esses ativos nunca caem do ATH e distorcem análises de volatilidade e distância do topo.
-
-O filtro `category=layer-1` na extração garante que o pipeline coleta apenas blockchains base — redes que processam e validam transações diretamente no próprio protocolo, como Bitcoin, Ethereum, Solana, Cardano e outras 246 Layer 1s relevantes.
-
----
-
 ## DAG — Orquestração com Airflow
 
 ```
-extract → load_bronze → transform → load_silver
-                                  → load_gold
+start → extract → load_bronze → transform → load_silver → load_gold → end
 ```
 
 - **Schedule:** `0 * * * *` (todo início de hora)
@@ -198,7 +189,20 @@ O `load_gold` implementa um DELETE por `data_coleta` antes de cada INSERT, evita
 | Maiores Altas e Quedas do Dia | gold_performance_24h | Barra |
 | Tamanho vs Oscilação de Preço | silver_cripto | Dispersão |
 
-> Prints do dashboard abaixo.
+### Ranking de Volatilidade do Dia
+![Volatilidade](docs/top10volatilidade.png)
+
+### Distância do Topo Histórico
+![Distância ATH](docs/distancia_topo.png)
+
+### Variação do Mercado Hoje
+![Variação](docs/variacao_dia.png)
+
+### Maiores Altas e Quedas do Dia
+![Altas e Quedas](docs/altas_quedas.png)
+
+### Tamanho de Mercado vs Oscilação de Preço
+![Market Cap vs Variação](docs/valormercado_oscilacao.png)
 
 ---
 

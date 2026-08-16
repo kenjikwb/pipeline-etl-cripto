@@ -189,17 +189,15 @@ O `load_gold` implementa um DELETE por `data_coleta` antes de cada INSERT, evita
 | Maiores Altas e Quedas do Dia | gold_performance_24h | Barra |
 | Tamanho vs Oscilação de Preço | silver_cripto | Dispersão |
 
-## Dashboards 
+<img src="docs/top10volatilidade.png" width="800">
 
-![Volatilidade](docs/top10volatilidade.png)
+<img src="docs/distancia_topo.png" width="600">
 
-![Distância ATH](docs/distancia_topo.png)
+<img src="docs/variacao_dia.png" width="500">
 
-![Variação](docs/variacao_dia.png)
+<img src="docs/altas_quedas.png" width="600">
 
-![Altas e Quedas](docs/altas_quedas.png)
-
-![Market Cap vs Variação](docs/valormercado_oscilacao.png)
+<img src="docs/valormercado_oscilacao.png" width="600">
 
 ---
 
@@ -278,7 +276,12 @@ pipeline-etl-cripto/
 │   ├── load.py                # Carga nas camadas Bronze, Silver e Gold
 │   └── main.py                # Execução local do pipeline
 ├── docs/
-│   └── arquitetura.png        # Diagrama da arquitetura
+│   └── arquitetura.png
+│   └── altas_quedas.png
+│   └── distancia_topo.png
+│   └── top10volatilidade.png
+│   └── valormercado_oscilacao.png
+│   └── variacao_dia.png                    
 ├── docker-compose.yaml
 ├── .env.example
 ├── .gitignore

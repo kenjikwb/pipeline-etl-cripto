@@ -163,7 +163,7 @@ Herda todos os campos da Bronze e adiciona:
 
 ---
 
-## DAG — Orquestração com Airflow
+## DAG - Orquestração com Airflow
 
 ```
 start → extract → load_bronze → transform → load_silver → load_gold → end

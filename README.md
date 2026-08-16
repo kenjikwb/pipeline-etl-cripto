@@ -189,19 +189,16 @@ O `load_gold` implementa um DELETE por `data_coleta` antes de cada INSERT, evita
 | Maiores Altas e Quedas do Dia | gold_performance_24h | Barra |
 | Tamanho vs Oscilação de Preço | silver_cripto | Dispersão |
 
-### Ranking de Volatilidade do Dia
+## Dashboards 
+
 ![Volatilidade](docs/top10volatilidade.png)
 
-### Distância do Topo Histórico
 ![Distância ATH](docs/distancia_topo.png)
 
-### Variação do Mercado Hoje
 ![Variação](docs/variacao_dia.png)
 
-### Maiores Altas e Quedas do Dia
 ![Altas e Quedas](docs/altas_quedas.png)
 
-### Tamanho de Mercado vs Oscilação de Preço
 ![Market Cap vs Variação](docs/valormercado_oscilacao.png)
 
 ---

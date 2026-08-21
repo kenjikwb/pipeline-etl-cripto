@@ -294,4 +294,5 @@ pipeline-etl-cripto/
 
 **Fabio Kenji Kawabe**  
 Economista | Data Engineer | Python · SQL · ETL
+
 [LinkedIn](https://linkedin.com/in/kenjikwb) · [GitHub](https://github.com/kenjikwb)
